@@ -1,8 +1,3 @@
-# React + Vite
+MediBook
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
-
-Currently, two official plugins are available:
-
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+MediBook is a modern, user-friendly healthcare management system designed to simplify and streamline the interaction between patients, doctors, and administrators. With a sleek design and efficient functionality, MediBook makes booking appointments, managing records, and accessing healthcare services easier than ever.
