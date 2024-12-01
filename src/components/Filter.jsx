@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const doctors = [
   { id: 1, name: 'Dr. Faisal Ahammad', type: 'General Physician', area: 'Dhanmondi', fee: 150 },
@@ -10,28 +10,14 @@ const doctors = [
   { id: 6, name: 'Dr. Babul', type: 'Gastroenterologist', area: 'Ukil Para', fee: 100 },
 ];
 
-function Doctors() {
-  const location = useLocation();
-
-  // States for filters
+function Filter() {
   const [type, setType] = useState('');
   const [area, setArea] = useState('');
   const [fee, setFee] = useState('');
-  const [filteredDoctors, setFilteredDoctors] = useState([]);
-
-  // Initialize filters and results from state
-  useEffect(() => {
-    const { filteredDoctors: initialDoctors, filters } = location.state || {};
-    if (filters) {
-      setType(filters.type || '');
-      setArea(filters.area || '');
-      setFee(filters.fee || '');
-    }
-    setFilteredDoctors(initialDoctors || doctors);
-  }, [location.state]);
+  const navigate = useNavigate();
 
   const handleSearch = () => {
-    const results = doctors.filter((doctor) => {
+    const filteredDoctors = doctors.filter((doctor) => {
       const matchesType = type === '' || doctor.type === type;
       const matchesArea = area === '' || doctor.area === area;
       const matchesFee = fee === '' || doctor.fee <= parseInt(fee, 10);
@@ -39,7 +25,13 @@ function Doctors() {
       return matchesType && matchesArea && matchesFee;
     });
 
-    setFilteredDoctors(results);
+    // Navigate to Doctors.jsx and pass filters and results via state
+    navigate('/doctors', {
+      state: {
+        filteredDoctors,
+        filters: { type, area, fee },
+      },
+    });
   };
 
   const uniqueTypes = [...new Set(doctors.map((doc) => doc.type))];
@@ -48,7 +40,7 @@ function Doctors() {
   return (
     <div className="p-8 bg-gray-50 min-h-screen">
       <h2 className="text-3xl md:text-5xl lg:text-6xl text-primary font-semibold leading-tight text-center mb-8">
-        Available Doctors
+        Find Your Doctor
       </h2>
 
       <div className="flex flex-col md:flex-row gap-4 justify-center items-center mb-8">
@@ -90,36 +82,12 @@ function Doctors() {
       <div className="flex justify-center mb-8">
         <button
           onClick={handleSearch}
-          className="bg-primary text-white px-6 py-2 rounded-lg shadow hover:bg-primary-dark focus:outline-none"
-        >
+          className="bg-primary text-white px-6 py-2 rounded-lg shadow hover:bg-primary-dark focus:outline-none">
           Search
         </button>
-      </div>
-
-      <div className="bg-white shadow-md rounded-lg p-4">
-        {filteredDoctors.length === 0 ? (
-          <p className="text-center text-gray-500">No doctors match your filters. Please try again.</p>
-        ) : (
-          <ul className="space-y-4">
-            {filteredDoctors.map((doctor) => (
-              <li
-                key={doctor.id}
-                className="p-4 border rounded-lg flex justify-between items-center border-primary shadow-sm"
-              >
-                <div>
-                  <p className="font-medium text-lg">{doctor.name}</p>
-                  <p className="text-gray-600">{doctor.type} - {doctor.area}</p>
-                </div>
-                <div>
-                  <span className="text-primary font-semibold">${doctor.fee}</span>
-                </div>
-              </li>
-            ))}
-          </ul>
-        )}
       </div>
     </div>
   );
 }
 
-export default Doctors;
+export default Filter;
