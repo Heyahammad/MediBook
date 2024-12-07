@@ -1,32 +1,32 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useContext, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { AppContext } from "../context/AppContext";
 
-const doctors = [
-  { id: 1, name: 'Dr. Faisal Ahammad', type: 'General Physician', area: 'Dhanmondi', fee: 150 },
-  { id: 2, name: 'Dr. Jaharia Islam', type: 'Gynecologist', area: 'Jigatola', fee: 100 },
-  { id: 3, name: 'Dr. Hrittik Sinha', type: 'Dermatologist', area: 'Uttara', fee: 90 },
-  { id: 4, name: 'Dr. Forhad Ahammad', type: 'Pediatrician', area: 'Mohammadpur', fee: 100 },
-  { id: 5, name: 'Dr. Topura Islam', type: 'Neurologist', area: 'Ukil Para', fee: 120 },
-  { id: 6, name: 'Dr. Babul', type: 'Gastroenterologist', area: 'Ukil Para', fee: 100 },
-];
-
-function Filter() {
-  const [type, setType] = useState('');
-  const [area, setArea] = useState('');
-  const [fee, setFee] = useState('');
+function Filter({ initialFilters = {} }) {
+  const { doctors } = useContext(AppContext);
+  const [type, setType] = useState(initialFilters.type || "");
+  const [area, setArea] = useState(initialFilters.area || "");
+  const [fee, setFee] = useState(initialFilters.fee || "");
   const navigate = useNavigate();
+
+  useEffect(() => {
+    // Pre-fill the inputs if initialFilters is provided
+    if (initialFilters.type) setType(initialFilters.type);
+    if (initialFilters.area) setArea(initialFilters.area);
+    if (initialFilters.fee) setFee(initialFilters.fee);
+  }, [initialFilters]);
 
   const handleSearch = () => {
     const filteredDoctors = doctors.filter((doctor) => {
-      const matchesType = type === '' || doctor.type === type;
-      const matchesArea = area === '' || doctor.area === area;
-      const matchesFee = fee === '' || doctor.fee <= parseInt(fee, 10);
+      const matchesType = type === "" || doctor.speciality === type;
+      const matchesArea = area === "" || doctor.address.line1.includes(area);
+      const matchesFee = fee === "" || doctor.fees <= parseInt(fee, 10);
 
       return matchesType && matchesArea && matchesFee;
     });
 
     // Navigate to Doctors.jsx and pass filters and results via state
-    navigate('/doctors', {
+    navigate("/doctors", {
       state: {
         filteredDoctors,
         filters: { type, area, fee },
@@ -34,22 +34,25 @@ function Filter() {
     });
   };
 
-  const uniqueTypes = [...new Set(doctors.map((doc) => doc.type))];
-  const uniqueAreas = [...new Set(doctors.map((doc) => doc.area))];
+  const uniqueTypes = [...new Set(doctors.map((doc) => doc.speciality))];
+  const uniqueAreas = [...new Set(doctors.map((doc) => doc.address.line1))];
 
   return (
-    <div className="p-8 bg-gray-50 min-h-screen">
+    <div className="p-8 bg-white items-center gap-4">
       <h2 className="text-3xl md:text-5xl lg:text-6xl text-primary font-semibold leading-tight text-center mb-8">
         Find Your Doctor
       </h2>
+      <p className="text-center text-gray-600 mb-8">
+        Dicover the ideal doctor who matches your preferences.
+      </p>
 
-      <div className="flex flex-col md:flex-row gap-4 justify-center items-center mb-8">
+      <div className="flex flex-col md:flex-row gap-3 justify-center items-center mb-8">
         <select
           value={type}
           onChange={(e) => setType(e.target.value)}
-          className="w-full md:w-1/4 p-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-primary border-gray-300 hover:border-primary"
+          className="w-full md:w-1/5 p-2 border rounded-full shadow-sm focus:outline-none focus:ring-2 focus:ring-primary border-gray-300 hover:border-primary"
         >
-          <option value="">Select Type</option>
+          <option value="">Select Speciality</option>
           {uniqueTypes.map((docType) => (
             <option key={docType} value={docType}>
               {docType}
@@ -60,7 +63,7 @@ function Filter() {
         <select
           value={area}
           onChange={(e) => setArea(e.target.value)}
-          className="w-full md:w-1/4 p-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-primary border-gray-300 hover:border-primary"
+          className="w-full md:w-1/5 p-2 border rounded-full shadow-sm focus:outline-none focus:ring-2 focus:ring-primary border-gray-300 hover:border-primary"
         >
           <option value="">Select Area</option>
           {uniqueAreas.map((docArea) => (
@@ -75,14 +78,12 @@ function Filter() {
           placeholder="Max Fee"
           value={fee}
           onChange={(e) => setFee(e.target.value)}
-          className="w-full md:w-1/4 p-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-primary border-gray-300 hover:border-primary"
+          className="w-full md:w-1/5 p-2 border rounded-full shadow-sm focus:outline-none focus:ring-2 focus:ring-primary border-gray-300 hover:border-primary"
         />
-      </div>
-
-      <div className="flex justify-center mb-8">
         <button
           onClick={handleSearch}
-          className="bg-primary text-white px-6 py-2 rounded-lg shadow hover:bg-primary-dark focus:outline-none">
+          className="bg-primary text-white w-full md:w-1/5 p-2 border rounded-full shadow hover:bg-primary-dark focus:outline-none"
+        >
           Search
         </button>
       </div>

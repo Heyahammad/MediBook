@@ -1,69 +1,84 @@
-import React from 'react'
+import React, { useState } from "react";
 
-function Login() {
-    return (
-        <div className="flex items-center justify-center min-h-screen bg-gray-50">
-          <div className="w-full max-w-sm bg-white rounded-lg shadow-lg p-8">
-            <h1 className="text-xl font-semibold text-center mb-2 text-gray-800">
-              Create Account
-            </h1>
-            <p className="text-gray-600 text-center mb-6">
-              Please sign up to book an appointment
-            </p>
-    
-            <form className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700">
-                  Full Name
-                </label>
-                <input
-                  type="text"
-                  placeholder="Enter your full name"
-                  className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-300 focus:border-transparent"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700">
-                  Email
-                </label>
-                <input
-                  type="email"
-                  placeholder="Enter your email"
-                  className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-300 focus:border-transparent"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700">
-                  Password
-                </label>
-                <input
-                  type="password"
-                  placeholder="Enter your password"
-                  className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-300 focus:border-transparent"
-                />
-              </div>
-    
-              <button
-                type="submit"
-                className="w-full bg-[#68BBE3] text-white py-2 px-4 rounded-lg hover:bg-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-300"
-              >
-                Create account
-              </button>
-            </form>
-    
-            <div className="mt-6 text-center">
-              <p className="text-gray-600">
-                Already have an account?{" "}
-                <a
-                  href="/login"
-                  className="text-[#68BBE3] font-medium hover:underline"
-                >
-                  Login here
-                </a>
-              </p>
-            </div>
+const Login = () => {
+  const [state, setState] = useState("Sign Up");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [name, setName] = useState("");
+
+  const onSubmitHolder = async (event) => {
+    event.preventDefault();
+  };
+  return (
+    <form className="mi-h-[80vh] flex items-center">
+      <div className="flex flex-col gap-3 m-auto my-32 items-start p-8 min-w-[340px] sm:min-w-96 border rounded-xl text-zinc-600 text-sm shadow-lg">
+        <p className="text-2xl font-semibold">
+          {state === "Sign Up" ? "Create Account" : "Login"}
+        </p>
+        <p>
+          Please {state === "Sign Up" ? "sign up" : "log in"} to book
+          appointment
+        </p>
+        {state === "Sign Up" && (
+          <div className="w-full ">
+            <p>Full Name</p>
+            <input
+              className="border border-zinc-300 rounded w-full p-2 mt-1"
+              type="text"
+              onChange={(e) => setName(e.target.name)}
+              value={name}
+              required
+            />
           </div>
+        )}
+
+        <div className="w-full ">
+          <p>Email</p>
+          <input
+            className="border border-zinc-300 rounded w-full p-2 mt-1"
+            type="email"
+            onChange={(e) => setEmail(e.target.name)}
+            value={email}
+            required
+          />
         </div>
-      );
-  }
-export default Login
+        <div className="w-full ">
+          <p>Password</p>
+          <input
+            className="border border-zinc-300 rounded w-full p-2 mt-1"
+            type="password"
+            onChange={(e) => setPassword(e.target.name)}
+            value={password}
+            required
+          />
+        </div>
+        <button className="bg-primary text-white w-full py-2 rounded-md text-base">
+          {state === "Sign Up" ? "Create Account" : "Login"}
+        </button>
+        {state === "Sign Up" ? (
+          <p>
+            Already have an account?{" "}
+            <span
+              onClick={() => setState("Login")}
+              className="text-primary underline cursor-pointer"
+            >
+              Login here
+            </span>
+          </p>
+        ) : (
+          <p>
+            Create an new account?{" "}
+            <span
+              onClick={() => setState("Sign Up")}
+              className="text-primary underline cursor-pointer"
+            >
+              click here
+            </span>
+          </p>
+        )}
+      </div>
+    </form>
+  );
+};
+
+export default Login;

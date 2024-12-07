@@ -1,125 +1,99 @@
-import React, { useState, useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
+import React, { useState, useContext } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+import { AppContext } from "../context/AppContext";
+import Filter from "../components/Filter";
 
-const doctors = [
-  { id: 1, name: 'Dr. Faisal Ahammad', type: 'General Physician', area: 'Dhanmondi', fee: 150 },
-  { id: 2, name: 'Dr. Jaharia Islam', type: 'Gynecologist', area: 'Jigatola', fee: 100 },
-  { id: 3, name: 'Dr. Hrittik Sinha', type: 'Dermatologist', area: 'Uttara', fee: 90 },
-  { id: 4, name: 'Dr. Forhad Ahammad', type: 'Pediatrician', area: 'Mohammadpur', fee: 100 },
-  { id: 5, name: 'Dr. Topura Islam', type: 'Neurologist', area: 'Ukil Para', fee: 120 },
-  { id: 6, name: 'Dr. Babul', type: 'Gastroenterologist', area: 'Ukil Para', fee: 100 },
-];
-
-function Doctors() {
+const Doctors = () => {
+  const { doctors } = useContext(AppContext);
   const location = useLocation();
+  const navigate = useNavigate();
 
-  // States for filters
-  const [type, setType] = useState('');
-  const [area, setArea] = useState('');
-  const [fee, setFee] = useState('');
-  const [filteredDoctors, setFilteredDoctors] = useState([]);
+  // Retrieve filteredDoctors and filters from the state passed via navigation
+  const allDoctors = location.state?.filteredDoctors || doctors;
+  const filters = location.state?.filters || { type: "", area: "", fee: "" };
 
-  // Initialize filters and results from state
-  useEffect(() => {
-    const { filteredDoctors: initialDoctors, filters } = location.state || {};
-    if (filters) {
-      setType(filters.type || '');
-      setArea(filters.area || '');
-      setFee(filters.fee || '');
-    }
-    setFilteredDoctors(initialDoctors || doctors);
-  }, [location.state]);
+  const [visibleDoctorsCount, setVisibleDoctorsCount] = useState(6);
 
-  const handleSearch = () => {
-    const results = doctors.filter((doctor) => {
-      const matchesType = type === '' || doctor.type === type;
-      const matchesArea = area === '' || doctor.area === area;
-      const matchesFee = fee === '' || doctor.fee <= parseInt(fee, 10);
+  // Slice the list of doctors to show only the visible count
+  const visibleDoctors = allDoctors.slice(0, visibleDoctorsCount);
 
-      return matchesType && matchesArea && matchesFee;
-    });
-
-    setFilteredDoctors(results);
+  // Handle the "More" button click
+  const handleLoadMore = () => {
+    setVisibleDoctorsCount((prevCount) => prevCount + 6);
   };
 
-  const uniqueTypes = [...new Set(doctors.map((doc) => doc.type))];
-  const uniqueAreas = [...new Set(doctors.map((doc) => doc.area))];
-
   return (
-    <div className="p-8 bg-gray-50 min-h-screen">
-      <h2 className="text-3xl md:text-5xl lg:text-6xl text-primary font-semibold leading-tight text-center mb-8">
-        Available Doctors
-      </h2>
-
-      <div className="flex flex-col md:flex-row gap-4 justify-center items-center mb-8">
-        <select
-          value={type}
-          onChange={(e) => setType(e.target.value)}
-          className="w-full md:w-1/4 p-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-primary border-gray-300 hover:border-primary"
-        >
-          <option value="">Select Type</option>
-          {uniqueTypes.map((docType) => (
-            <option key={docType} value={docType}>
-              {docType}
-            </option>
-          ))}
-        </select>
-
-        <select
-          value={area}
-          onChange={(e) => setArea(e.target.value)}
-          className="w-full md:w-1/4 p-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-primary border-gray-300 hover:border-primary"
-        >
-          <option value="">Select Area</option>
-          {uniqueAreas.map((docArea) => (
-            <option key={docArea} value={docArea}>
-              {docArea}
-            </option>
-          ))}
-        </select>
-
-        <input
-          type="number"
-          placeholder="Max Fee"
-          value={fee}
-          onChange={(e) => setFee(e.target.value)}
-          className="w-full md:w-1/4 p-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-primary border-gray-300 hover:border-primary"
-        />
-      </div>
-
-      <div className="flex justify-center mb-8">
-        <button
-          onClick={handleSearch}
-          className="bg-primary text-white px-6 py-2 rounded-lg shadow hover:bg-primary-dark focus:outline-none"
-        >
-          Search
-        </button>
-      </div>
-
-      <div className="bg-white shadow-md rounded-lg p-4">
-        {filteredDoctors.length === 0 ? (
-          <p className="text-center text-gray-500">No doctors match your filters. Please try again.</p>
-        ) : (
-          <ul className="space-y-4">
-            {filteredDoctors.map((doctor) => (
-              <li
-                key={doctor.id}
-                className="p-4 border rounded-lg flex justify-between items-center border-primary shadow-sm"
+    <>
+      {/* Pass the filters to the Filter component */}
+      <Filter initialFilters={filters} />
+      <div className="min-h-screen py-12 bg-gray-50">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+          {visibleDoctors.map((doctor) => (
+            <div
+              key={doctor._id}
+              className="bg-white rounded-lg shadow-md border border-gray-200 hover:shadow-lg transition duration-300 p-6 flex flex-col items-center"
+            >
+              <img
+                src={doctor.image}
+                alt={doctor.name}
+                className="w-24 h-24 sm:w-32 sm:h-32 rounded-full mb-4 border-4 border-primary"
+              />
+              <h2 className="text-lg sm:text-xl font-semibold text-gray-800">
+                {doctor.name}
+              </h2>
+              <p className="text-gray-600 text-sm mt-1">
+                <strong>Speciality:</strong> {doctor.speciality}
+              </p>
+              <p className="text-gray-600 text-sm mt-1">
+                <strong>Degree:</strong> {doctor.degree}
+              </p>
+              <p className="text-gray-600 text-sm mt-1">
+                <strong>Experience:</strong> {doctor.experience}
+              </p>
+              <p className="text-gray-600 text-sm mt-1">
+                <strong>Fees:</strong> ${doctor.fees}
+              </p>
+              <div className="text-center mt-4">
+                <p className="text-gray-600 text-sm">
+                  <strong>Address:</strong>
+                </p>
+                <p className="text-gray-600 text-sm">{doctor.address.line1}</p>
+                <p className="text-gray-600 text-sm">{doctor.address.line2}</p>
+              </div>
+              <button
+                onClick={() => {
+                  navigate(`/appointments/${doctor._id}`);
+                  scrollTo(0, 0);
+                }}
+                className="mt-4 bg-primary text-white px-8 py-2 text-sm rounded-full shadow-md hover:bg-primary-dark focus:outline-none transition duration-300"
               >
-                <div>
-                  <p className="font-medium text-lg">{doctor.name}</p>
-                  <p className="text-gray-600">{doctor.type} - {doctor.area}</p>
-                </div>
-                <div>
-                  <span className="text-primary font-semibold">${doctor.fee}</span>
-                </div>
-              </li>
-            ))}
-          </ul>
+                Book
+              </button>
+            </div>
+          ))}
+        </div>
+
+        {/* "More" button to load more doctors */}
+        {visibleDoctorsCount < allDoctors.length && (
+          <div className="text-center mt-8">
+            <button
+              onClick={handleLoadMore}
+              className="bg-primary text-white px-6 py-3 text-sm font-medium rounded-full shadow-md hover:bg-primary-dark focus:outline-none transition duration-300"
+            >
+              More
+            </button>
+          </div>
+        )}
+
+        {/* Message when all doctors are loaded */}
+        {visibleDoctorsCount >= allDoctors.length && (
+          <p className="text-center text-gray-500 text-sm mt-8">
+            No more doctors to show.
+          </p>
         )}
       </div>
-    </div>
+    </>
   );
-}
+};
 
 export default Doctors;
