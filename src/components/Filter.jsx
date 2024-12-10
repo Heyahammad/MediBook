@@ -19,7 +19,7 @@ function Filter({ initialFilters = {} }) {
   const handleSearch = () => {
     const filteredDoctors = doctors.filter((doctor) => {
       const matchesType = type === "" || doctor.speciality === type;
-      const matchesArea = area === "" || doctor.address.line1.includes(area);
+      const matchesArea = area === "" || doctor.address.line2.includes(area);
       const matchesFee = fee === "" || doctor.fees <= parseInt(fee, 10);
 
       return matchesType && matchesArea && matchesFee;
@@ -35,7 +35,7 @@ function Filter({ initialFilters = {} }) {
   };
 
   const uniqueTypes = [...new Set(doctors.map((doc) => doc.speciality))];
-  const uniqueAreas = [...new Set(doctors.map((doc) => doc.address.line1))];
+  const uniqueAreas = [...new Set(doctors.map((doc) => doc.address.line2))];
 
   return (
     <div className="p-8 bg-white items-center gap-4">
